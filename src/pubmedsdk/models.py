@@ -5,7 +5,6 @@ This code is mostly generated with Anthropic's Claude 3.5 sonnet based on the En
 see: https://www.ncbi.nlm.nih.gov/books/NBK25499/
 """
 
-
 from enum import Enum
 from typing import Literal, Optional
 
@@ -612,7 +611,7 @@ class EFetchResponse(BaseModel):
 
     The response format varies significantly based on:
     - Database being queried (db parameter)
-    - Retrieval mode (retmode parameter) 
+    - Retrieval mode (retmode parameter)
     - Retrieval type (rettype parameter)
 
     Common formats include:
@@ -627,4 +626,3 @@ class EFetchResponse(BaseModel):
     """
 
     pass  # Specific response formats should extend this base class
-

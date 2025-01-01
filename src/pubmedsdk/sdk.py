@@ -143,8 +143,8 @@ async def efetch(client: httpx.AsyncClient, params: EFetchRequest) -> str:
     """
     Query NCBI EFetch API to retrieve formatted data records.
 
-    Returns formatted data records for a list of input UIDs or for UIDs stored on 
-    the Entrez History server. The format and content of the response varies based on 
+    Returns formatted data records for a list of input UIDs or for UIDs stored on
+    the Entrez History server. The format and content of the response varies based on
     the database and retrieval parameters.
 
     Args:
@@ -211,7 +211,6 @@ async def efetch(client: httpx.AsyncClient, params: EFetchRequest) -> str:
     response.raise_for_status()
 
     return response.text
-
 
 
 if __name__ == "__main__":
