@@ -1,8 +1,8 @@
-# PubMed SDK
+# PubMed Client
 
 [PubMed](https://pubmed.ncbi.nlm.nih.gov/) is a database of over 37 million citations for biomedical literature from MEDLINE, life science journals, and online books. Citations may include links to full text content from PubMed Central and publisher web sites.
 
-PubMed SDK is a simple open-source Python SDK for calling the NCBI PubMed API.
+PubMed Client is a simple open-source Python client for calling the NCBI PubMed API. 
 
 At the moment, the SDK mostly wraps around Entrez 'E-Utilities' API.
 
