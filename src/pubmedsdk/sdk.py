@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 
 import httpx
 
-from pubmedmcp.models import (
+from pubmedsdk.models import (
     EInfoRequest,
     EInfoResponse,
     ESearchRequest,

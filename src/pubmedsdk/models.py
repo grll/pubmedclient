@@ -1,3 +1,11 @@
+"""
+Pydantic models for the PubMed SDK
+
+This code is mostly generated with Anthropic's Claude 3.5 sonnet based on the Entrez API detailed documentation.
+see: https://www.ncbi.nlm.nih.gov/books/NBK25499/
+"""
+
+
 from enum import Enum
 from typing import Literal, Optional
 
