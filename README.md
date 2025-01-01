@@ -53,8 +53,20 @@ async with pubmedsdk_client() as client:
     print(response)
 ```
 
+## Development
+
+During development, setup the pip package in editable mode to resolve imports from the local package.
+
+```bash
+uv pip install -e .
+
+# or pip
+pip install -e .
+```
+
 ## Contributing
 
 The API coverage is far from complete.
 
 We welcome contributions. Please feel free to open an issue or a PR.
+
