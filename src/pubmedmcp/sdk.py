@@ -9,6 +9,7 @@ from pubmedmcp.models import (
     ESearchRequest,
     ESearchResponse,
     RetMode,
+    EFetchRequest,
 )
 
 log = logging.getLogger(__file__)
@@ -136,6 +137,81 @@ async def esearch(client: httpx.AsyncClient, params: ESearchRequest) -> ESearchR
     response.raise_for_status()
 
     return ESearchResponse.model_validate_json(response.text)
+
+
+async def efetch(client: httpx.AsyncClient, params: EFetchRequest) -> str:
+    """
+    Query NCBI EFetch API to retrieve formatted data records.
+
+    Returns formatted data records for a list of input UIDs or for UIDs stored on 
+    the Entrez History server. The format and content of the response varies based on 
+    the database and retrieval parameters.
+
+    Args:
+        client: an httpx.AsyncClient used to make the request
+        params: EFetchRequest model containing query parameters
+
+    Returns:
+        Raw response text in the requested format (XML, text, JSON, etc.)
+        Note: Due to variable response formats, the raw text is returned for parsing
+        by format-specific handlers.
+
+    Examples:
+        >>> # Fetch PMIDs as text abstracts
+        >>> response = await efetch(client,
+        ...     EFetchRequest(
+        ...         id="17284678,9997",
+        ...         retmode="text",
+        ...         rettype="abstract"
+        ...     )
+        ... )
+
+        >>> # Fetch PMIDs in XML format
+        >>> response = await efetch(client,
+        ...     EFetchRequest(
+        ...         id="11748933,11700088",
+        ...         retmode="xml"
+        ...     )
+        ... )
+
+        >>> # Fetch first 100 bases of DNA sequence
+        >>> response = await efetch(client,
+        ...     EFetchRequest(
+        ...         db="nuccore",
+        ...         id="21614549",
+        ...         strand="1",
+        ...         seq_start=1,
+        ...         seq_stop=100,
+        ...         rettype="fasta",
+        ...         retmode="text"
+        ...     )
+        ... )
+
+        >>> # Fetch using history server
+        >>> response = await efetch(client,
+        ...     EFetchRequest(
+        ...         query_key=1,
+        ...         WebEnv="MCID_123...",
+        ...     )
+        ... )
+
+    Notes:
+        - Base URL: https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi
+        - Response format varies by database and retrieval parameters
+        - Maximum of 10,000 records can be retrieved in a single request
+        - For large sets, use retstart to iterate through results
+        - Some sequence records without GI numbers can only be retrieved by accession
+    """
+    base_url = f"{BASE_URL}/efetch.fcgi"
+
+    # Build query parameters
+    query_params = params.model_dump(exclude_none=True)
+
+    response = await client.get(base_url, params=query_params)
+    response.raise_for_status()
+
+    return response.text
+
 
 
 if __name__ == "__main__":

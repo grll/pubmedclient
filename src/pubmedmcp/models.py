@@ -474,3 +474,149 @@ class ESearchResponse(BaseModel):
 
     header: EInfoHeader = Field(..., description="Response header information")
     esearchresult: ESearchResult = Field(..., description="Search results")
+
+
+class EFetchRequest(BaseModel, use_enum_values=True, validate_default=True):
+    """
+    Request parameters for NCBI EFetch API
+
+    Functions:
+    - Returns formatted data records for a list of input UIDs
+    - Returns formatted data records for a set of UIDs stored on the Entrez History server
+
+    Examples:
+        >>> # Fetch PMIDs 17284678 and 9997 as text abstracts
+        >>> EFetchRequest(
+        ...     db="pubmed",
+        ...     id="17284678,9997",
+        ...     retmode="text",
+        ...     rettype="abstract"
+        ... )
+
+        >>> # Fetch PMIDs in XML
+        >>> EFetchRequest(
+        ...     db="pubmed",
+        ...     id="11748933,11700088",
+        ...     retmode="xml"
+        ... )
+
+        >>> # Fetch XML for PubMed Central ID
+        >>> EFetchRequest(db="pmc", id="212403")
+
+        >>> # Fetch first 100 bases of plus strand in FASTA format
+        >>> EFetchRequest(
+        ...     db="nuccore",
+        ...     id="21614549",
+        ...     strand="1",
+        ...     seq_start=1,
+        ...     seq_stop=100,
+        ...     rettype="fasta",
+        ...     retmode="text"
+        ... )
+
+        >>> # Fetch GenPept flat file for protein
+        >>> EFetchRequest(
+        ...     db="protein",
+        ...     id="8",
+        ...     rettype="gp"
+        ... )
+
+        >>> # Fetch using history server
+        >>> EFetchRequest(
+        ...     db="pubmed",
+        ...     query_key=1,
+        ...     WebEnv="MCID_123..."
+        ... )
+    """
+
+    db: Db = Field(
+        Db.PUBMED,
+        description="Database from which to retrieve records. Value must be a valid Entrez database name",
+    )
+    id: Optional[str] = Field(
+        None,
+        description="""UID list. Either a single UID or a comma-delimited list of UIDs. 
+        All UIDs must be from the specified database. For sequence databases (nuccore, 
+        popset, protein), the UID list may be a mixed list of GI numbers and 
+        accession.version identifiers.""",
+    )
+    query_key: Optional[int] = Field(
+        None,
+        description="""Query key specifying which UID list attached to the Web Environment 
+        will be used as input. Must be used with WebEnv.""",
+    )
+    WebEnv: Optional[str] = Field(
+        None,
+        description="""Web Environment containing the UID list to use as input. Usually 
+        obtained from previous ESearch, EPost or ELink call. Must be used with query_key.""",
+    )
+    retmode: Optional[str] = Field(
+        None,
+        description="""Retrieval mode specifying the data format of returned records 
+        (e.g., text, XML, JSON). Valid values vary by database.""",
+    )
+    rettype: Optional[str] = Field(
+        None,
+        description="""Retrieval type specifying the record view (e.g., abstract, MEDLINE, 
+        FASTA). Valid values vary by database.""",
+    )
+    retstart: Optional[int] = Field(
+        0,
+        description="""Sequential index of first record to retrieve (default=0). Can be 
+        used with retmax to download an arbitrary subset of records.""",
+    )
+    retmax: Optional[int] = Field(
+        20,
+        description="""Total number of records to retrieve, up to maximum of 10,000. For 
+        large sets, retstart can be iterated while holding retmax constant.""",
+    )
+    strand: Optional[Literal["1", "2"]] = Field(
+        None,
+        description="""Strand of DNA to retrieve. Available values are "1" for plus strand 
+        and "2" for minus strand. For sequence databases only.""",
+    )
+    seq_start: Optional[int] = Field(
+        None,
+        description="""First sequence base to retrieve. Integer coordinate of first desired 
+        base, with "1" representing the first base. For sequence databases only.""",
+    )
+    seq_stop: Optional[int] = Field(
+        None,
+        description="""Last sequence base to retrieve. Integer coordinate of last desired 
+        base. For sequence databases only.""",
+    )
+    complexity: Optional[int] = Field(
+        None,
+        description="""Data content to return. Controls how much of the record "blob" to 
+        return. Values:
+        0: entire blob
+        1: bioseq
+        2: minimal bioseq-set  
+        3: minimal nuc-prot
+        4: minimal pub-set
+        For sequence databases only.""",
+    )
+
+
+class EFetchResponse(BaseModel):
+    """
+    Response from NCBI EFetch API
+
+    The response format varies significantly based on:
+    - Database being queried (db parameter)
+    - Retrieval mode (retmode parameter) 
+    - Retrieval type (rettype parameter)
+
+    Common formats include:
+    - XML (retmode=xml)
+    - Text (retmode=text)
+    - JSON (retmode=json)
+    - FASTA (rettype=fasta)
+    - GenBank/GenPept flat files (rettype=gb/gp)
+
+    Due to the variable response format, this base model should be extended
+    for specific database/format combinations.
+    """
+
+    pass  # Specific response formats should extend this base class
+
