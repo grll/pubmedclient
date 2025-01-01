@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 
 import httpx
 
-from pubmedsdk.models import (
+from pubmedclient.models import (
     EInfoRequest,
     EInfoResponse,
     ESearchRequest,
@@ -19,12 +19,12 @@ BASE_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
 
 
 @asynccontextmanager
-async def pubmedsdk_client() -> httpx.AsyncClient:
+async def pubmedclient_client() -> httpx.AsyncClient:
     """
     Context manager to create an async client with default headers for NCBI Entrez API.
     """
     headers = {
-        "tool": "PubMedSDK",
+        "tool": "pubmedclient",
         "email": "guillaume.raille@gmail.com",
     }
     async with httpx.AsyncClient(headers=headers) as client:
@@ -219,7 +219,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
 
     async def main():
-        async with pubmedsdk_client() as client:
+        async with pubmedclient_client() as client:
             # Get info about pubmed database
             params = EInfoRequest(db="pubmed", version="2.0")
             response = await einfo(client, params)

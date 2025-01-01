@@ -15,10 +15,10 @@ See for more details on the E-Utilities API from PubMed:
 
 ```bash
 # recommended uv, will add pubmesdk to your uv project
-uv add pubmedsdk
+uv add pubmedclient
 
 # or pip
-pip install pubmedsdk
+pip install pubmedclient
 ```
 
 ## Usage
@@ -26,11 +26,11 @@ pip install pubmedsdk
 warning: without api key, you can only make 3 requests per second per IP.
 
 ```python
-from pubmedsdk import pubmedsdk_client
+from pubmedclient import pubmedclient_client
 
 # this is a thin wrapper around httpx
 # with a few headers set for Entrez API
-async with pubmedsdk_client() as client:
+async with pubmedclient_client() as client:
 
     # get the name of all available databases via EInfo
     params = EInfoRequest()

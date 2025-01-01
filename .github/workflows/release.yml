@@ -38,7 +38,7 @@ jobs:
 
       - name: Check version matches tag
         run: |
-          PKG_VERSION=$(uv run python -c "from pubmedsdk import __version__; print(__version__)")
+          PKG_VERSION=$(uv run python -c "from pubmedclient import __version__; print(__version__)")
           TAG_VERSION=${GITHUB_REF#refs/tags/v}
           if [ "$PKG_VERSION" != "$TAG_VERSION" ]; then
             echo "Version mismatch: Package version ($PKG_VERSION) does not match tag version ($TAG_VERSION)"

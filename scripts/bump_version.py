@@ -15,7 +15,7 @@ def run_command(command):
 
 
 def bump_version(version_type):
-    init_file = Path("src/pubmedsdk/__init__.py")
+    init_file = Path("src/pubmedclient/__init__.py")
 
     # Read current version
     content = init_file.read_text()
@@ -40,7 +40,7 @@ def bump_version(version_type):
     init_file.write_text(new_content)
 
     # Git operations
-    run_command("git add src/pubmedsdk/__init__.py")
+    run_command("git add src/pubmedclient/__init__.py")
     run_command(f'git commit -m "release {new_version}: version bump commit"')
     run_command("git push")
     run_command(f"git tag v{new_version}")
