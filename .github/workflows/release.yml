@@ -1,0 +1,58 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+env:
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      # Needed for PyPI trusted publishing
+      id-token: write
+      # Needed for uploading to GitHub releases
+      contents: write
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Build package
+        run: |
+          uv venv
+          source .venv/bin/activate
+          uv sync --no-dev
+          uv build
+
+      - name: Check version matches tag
+        run: |
+          PKG_VERSION=$(uv run python -c "from pubmedsdk import __version__; print(__version__)")
+          TAG_VERSION=${GITHUB_REF#refs/tags/v}
+          if [ "$PKG_VERSION" != "$TAG_VERSION" ]; then
+            echo "Version mismatch: Package version ($PKG_VERSION) does not match tag version ($TAG_VERSION)"
+            exit 1
+          fi
+
+      - name: Upload to GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/*
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/

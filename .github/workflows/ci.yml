@@ -1,0 +1,114 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  # test:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+
+  #     - name: Set up Python
+  #       uses: actions/setup-python@v5
+  #       with:
+  #         python-version: ${{ env.PYTHON_VERSION }}
+
+  #     - name: Install uv
+  #       run: |
+  #         curl -LsSf https://astral.sh/uv/install.sh | sh
+  #         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+  #     - name: Cache uv dependencies
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: |
+  #           ~/.cache/uv
+  #           .venv
+  #         key: ${{ runner.os }}-uv-${{ hashFiles('pyproject.toml') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-uv-
+
+  #     - name: Install dependencies
+  #       run: |
+  #         uv venv
+  #         source .venv/bin/activate
+  #         uv sync
+
+  #     - name: Run tests
+  #       run: |
+  #         source .venv/bin/activate
+  #         pytest tests/
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Cache uv dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/uv
+            .venv
+          key: ${{ runner.os }}-uv-lint-${{ hashFiles('pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-uv-lint-
+
+      - name: Install dependencies
+        run: |
+          uv venv
+          source .venv/bin/activate
+          uv sync --only-dev
+
+      - name: Run linters
+        run: |
+          source .venv/bin/activate
+          ruff check .
+          ruff format --check .
+
+  build:
+    needs: [lint]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Build package
+        run: |
+          uv venv
+          source .venv/bin/activate
+          uv sync --no-dev
+          uv build
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 7
